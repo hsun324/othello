@@ -1,25 +1,21 @@
 #ifndef __COMMON_H__
 #define __COMMON_H__
 
-enum Side { 
+#include <cstddef>
+#include <cstdint>
+
+enum class Side {
     WHITE, BLACK
 };
 
-class Move {
-   
-public:
-    int x, y;
-    Move(int x, int y) {
-        this->x = x;
-        this->y = y;        
+struct Move {
+    int32_t x, y;
+
+    Move(int32_t x, int32_t y) : x(x), y(y) { }
+
+    inline size_t index() const {
+        return (((uint8_t) x) << 3) + ((uint8_t) y);
     }
-    ~Move() {}
-
-    int getX() { return x; }
-    int getY() { return y; }
-
-    void setX(int x) { this->x = x; }
-    void setY(int y) { this->y = y; }
 };
 
 #endif

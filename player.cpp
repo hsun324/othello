@@ -22,6 +22,10 @@ Player::Player(Side side) {
 Player::~Player() {
 }
 
+Move Player::move(Board board, int remaining) {
+    return Move(-1, -1);
+}
+
 /*
  * Compute the next move given the opponent's last move. Your AI is
  * expected to keep track of the board on its own. If this is the first move,
@@ -35,10 +39,9 @@ Player::~Player() {
  * The move returned must be legal; if there are no valid moves for your side,
  * return nullptr.
  */
-Move *Player::doMove(Move *opponentsMove, int msLeft) {
-    /*
-     * TODO: Implement how moves your AI should play here. You should first
-     * process the opponent's opponents move before calculating your own move
-     */
-    return nullptr;
+Move *Player::doMove(Board board, int remaining) {
+    Move move = this->move(board, remaining);
+
+    if (move.x < 0 && move.y < 0) return nullptr;
+    else return new Move(move);
 }
