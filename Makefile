@@ -1,29 +1,46 @@
-CC          = g++
-CFLAGS      = -std=c++11 -Wall -pedantic -ggdb -march=native
-OBJS        = player.o board.o
-PLAYERNAME  = player
+CC         ?= gcc
+CXX        ?= g++
+CPPFLAGS   = -std=c++11 -Wall -pedantic -ggdb -march=native
+LDFLAGS    = -std=c++11
+SOURCES    = src/player.cpp src/board.cpp src/full_strategy.cpp src/minimax_strategy.cpp src/random_strategy.cpp
+MAINS      = src/wrapper.cpp
+EXECUTABLE = player
 
-all: $(PLAYERNAME) testgame
+OBJECTS      = $(SOURCES:%.cpp=objs/%.o)
+MAIN_OBJECTS = $(MAINS:%.cpp=objs/%.o)
 
-$(PLAYERNAME): $(OBJS) wrapper.o
-	$(CC) -o $@ $^
+all: release
 
-testgame: testgame.o
-	$(CC) -o $@ $^
+debug: CPPFLAGS += -DDEBUG -O0 -g
+debug: $(EXECUTABLE) tests
 
-testminimax: $(OBJS) testminimax.o
-	$(CC) -o $@ $^
+release: CPPFLAGS += -O3
+release: $(EXECUTABLE) tests
 
-%.o: %.cpp
-	$(CC) -c $(CFLAGS) -x c++ $< -o $@
+$(EXECUTABLE): $(OBJECTS) $(MAIN_OBJECTS)
+	$(CXX) $(LDFLAGS) -o $@ $^
+
+tests: testgame testminimax
+testgame: testgame.cpp
+	$(CXX) $(LDFLAGS) -o $@ $^
+testminimax: $(OBJECTS) testminimax.o
+	$(CXX) $(LDFLAGS) -o $@ $^
+
+objs/%.o: $(dir $@) %.cpp
+	$(CXX) -c $(CPPFLAGS) $< -o $@
+
+objs/:
+	mkdir -p $@
+
+objs/%/:
+	mkdir -p $@
+
+clean:
+	rm -f $(OBJECTS) $(EXECUTABLE) testgame testminimax
 
 java:
 	make -C java/
-
-cleanjava:
+java-clean:
 	make -C java/ clean
 
-clean:
-	rm -f *.o $(PLAYERNAME) testgame testminimax
-
-.PHONY: java testminimax
+.PHONY: all debug release tests testgame testminimax clean java java-clean

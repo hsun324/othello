@@ -1,7 +1,8 @@
-#include <iostream>
-#include "common.hpp"
-#include "player.hpp"
-#include "board.hpp"
+#include "src/common.hpp"
+#include "src/player.hpp"
+#include "src/board.hpp"
+
+#include "src/minimax_strategy.hpp"
 
 // Use this file to test your minimax implementation (2-ply depth, with a
 // heuristic of the difference in number of pieces).
@@ -19,21 +20,18 @@ int main(int argc, char *argv[]) {
         ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
         ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '
     };
-    Board *board = new Board();
-    board->setBoard(boardData);
 
-    // Initialize player as the white player, and set testing_minimax flag.
-    Player *player = new Player(WHITE);
-    player->testingMinimax = true;
+    // Initialize the board using the example state.
+    // Invert the board to set the player to be using the white tiles.
+    Board board;
+    board.setBoard(boardData);
+    board = board.inverse();
 
+    // Initialize the player using the minimax strategy.
+    Player<minimax_strategy> player(board);
 
-    /**
-     * TODO: Write code to set your player's internal board state to the
-     * example state.
-     */
-
-    // Get player's move and check if it's right.
-    Move *move = player->doMove(*board, 0);
+    // Get player's move and check if it's correct.
+    Move *move = player.doMove(0);
 
     if (move != nullptr && move->x == 1 && move->y == 1) {
         std::cout << "Correct move: (1, 1)" << std::endl;;

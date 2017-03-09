@@ -1,0 +1,164 @@
+// Decompiled by Jad v1.5.8e. Copyright 2001 Pavel Kouznetsov.
+// Jad home page: http://www.geocities.com/kpdus/jad.html
+// Decompiler options: packimports(3) 
+// Source File Name:   BetterPlayer.java
+
+import java.io.PrintStream;
+import java.util.LinkedList;
+import java.util.ListIterator;
+
+public class BetterPlayer
+    implements OthelloPlayer
+{
+
+    public BetterPlayer()
+    {
+        board = new OthelloBoard();
+    }
+
+    private int RecLevel()
+    {
+        return 3;
+    }
+
+    public void init(OthelloSide othelloside)
+    {
+        side = othelloside;
+        if(othelloside == OthelloSide.BLACK)
+            opponentSide = OthelloSide.WHITE;
+        else
+            opponentSide = OthelloSide.BLACK;
+    }
+
+    public Move doMove(Move move, long l)
+    {
+        if(move != null)
+            board.move(move, opponentSide);
+        LinkedList linkedlist = getMoveList(board, side);
+        if(linkedlist.size() != 0)
+        {
+            ListIterator listiterator = linkedlist.listIterator();
+            int i = 0xfff0bdc0;
+            Move move1 = null;
+            do
+            {
+                if(!listiterator.hasNext())
+                    break;
+                Move move2 = (Move)listiterator.next();
+                OthelloBoard othelloboard = board.copy();
+                othelloboard.move(move2, side);
+                int j = evaluateBoard(othelloboard, side);
+                j = (int)((float)j - 0.85F * (float)recurse(RecLevel(), othelloboard, side.opposite()));
+                if(j > i)
+                {
+                    move1 = move2;
+                    i = j;
+                }
+            } while(true);
+            System.out.println((new StringBuilder()).append("done iters, picked: ").append(move1).toString());
+            board.move(move1, side);
+            return move1;
+        } else
+        {
+            System.out.println("PASS");
+            return null;
+        }
+    }
+
+    private int recurse(int i, OthelloBoard othelloboard, OthelloSide othelloside)
+    {
+        if(i == 0)
+            return evaluateBoard(othelloboard, othelloside);
+        LinkedList linkedlist = getMoveList(othelloboard, othelloside);
+        if(linkedlist.size() != 0)
+        {
+            ListIterator listiterator = linkedlist.listIterator(0);
+            int j = 0xfff0bdc0;
+            Object obj = null;
+            do
+            {
+                if(!listiterator.hasNext())
+                    break;
+                Move move1 = (Move)listiterator.next();
+                OthelloBoard othelloboard1 = othelloboard.copy();
+                othelloboard1.move(move1, othelloside);
+                int k = evaluateBoard(othelloboard1, othelloside);
+                k = (int)((float)k - 0.85F * (float)recurse(i - 1, othelloboard1, othelloside.opposite()));
+                if(k > j)
+                {
+                    Move move = move1;
+                    j = k;
+                }
+            } while(true);
+            return j;
+        } else
+        {
+            return -35;
+        }
+    }
+
+    private int evaluateBoard(OthelloBoard othelloboard, OthelloSide othelloside)
+    {
+        int i = 0;
+        for(int j = 0; j <= 7; j++)
+        {
+            for(int k = 0; k <= 7; k++)
+            {
+                if(othelloboard.get(othelloside, j, k))
+                {
+                    i += evaluatePiece(othelloboard, othelloside, j, k);
+                    continue;
+                }
+                if(othelloboard.get(opponentSide, j, k))
+                    i -= evaluatePiece(othelloboard, opponentSide, j, k);
+            }
+
+        }
+
+        return i;
+    }
+
+    private int evaluatePiece(OthelloBoard othelloboard, OthelloSide othelloside, int i, int j)
+    {
+        int k = 1;
+        if((i == 0 || i == 7) && (j == 0 || j == 7))
+            k += 40;
+        if(i == 0 || i == 7 || j == 0 || j == 7)
+            k += 10;
+        if(i == 1 || i == 6 || j == 1 || j == 6)
+        {
+            k--;
+            if(i == 1 && j == 1 && !othelloboard.get(othelloside, 0, 0))
+                k -= 5;
+            if(i == 1 && j == 6 && !othelloboard.get(othelloside, 0, 7))
+                k -= 5;
+            if(i == 6 && j == 1 && !othelloboard.get(othelloside, 7, 0))
+                k -= 5;
+            if(i == 6 && j == 6 && !othelloboard.get(othelloside, 7, 7))
+                k -= 5;
+        }
+        return k;
+    }
+
+    private LinkedList getMoveList(OthelloBoard othelloboard, OthelloSide othelloside)
+    {
+        LinkedList linkedlist = new LinkedList();
+        for(int i = 0; i <= 7; i++)
+        {
+            for(int j = 0; j <= 7; j++)
+            {
+                Move move = new Move(i, j);
+                if(othelloboard.checkMove(move, othelloside))
+                    linkedlist.add(move);
+            }
+
+        }
+
+        return linkedlist;
+    }
+
+    static final float RECURSION_WEIGHT = 0.85F;
+    private OthelloSide side;
+    private OthelloSide opponentSide;
+    private OthelloBoard board;
+}
