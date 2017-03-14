@@ -4,7 +4,7 @@ CPPFLAGS   = -std=c++11 -Wall -pedantic -ggdb -march=native
 LDFLAGS    = -std=c++11
 SOURCES    = src/board.cpp src/full_strategy.cpp src/minimax_strategy.cpp src/random_strategy.cpp src/thirdparty/spookyhash.cpp
 MAINS      = src/wrapper.cpp
-EXECUTABLE = player
+EXECUTABLE = ShallowAzure
 
 OBJECTS      = $(SOURCES:%.cpp=objs/%.o)
 MAIN_OBJECTS = $(MAINS:%.cpp=objs/%.o)
