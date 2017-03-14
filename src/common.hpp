@@ -6,6 +6,8 @@
 
 #include <iostream>
 
+#define FULLDEBUG 0
+
 enum class Side {
     WHITE, BLACK
 };

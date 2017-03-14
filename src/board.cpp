@@ -38,39 +38,36 @@
 } while (0)
 
 
-MoveBoard Board::valid_moves() const {
+MoveBoard Board::moves() const {
     MoveBoard moves;
 
-    uint64_t self = black.raw(), opp = white.raw();
+    uint64_t sel = self.raw(), opp = opponent.raw();
 
-    MOVE_MS(moves.directional[0], U, self, opp);
-    MOVE_MS(moves.directional[1], D, self, opp);
-    MOVE_MS(moves.directional[2], L, self, opp);
-    MOVE_MS(moves.directional[3], R, self, opp);
-    MOVE_MS(moves.directional[4], UL, self, opp);
-    MOVE_MS(moves.directional[5], UR, self, opp);
-    MOVE_MS(moves.directional[6], DL, self, opp);
-    MOVE_MS(moves.directional[7], DR, self, opp);
+    MOVE_MS(moves.directional[0], U,  sel, opp);
+    MOVE_MS(moves.directional[1], D,  sel, opp);
+    MOVE_MS(moves.directional[2], L,  sel, opp);
+    MOVE_MS(moves.directional[3], R,  sel, opp);
+    MOVE_MS(moves.directional[4], UL, sel, opp);
+    MOVE_MS(moves.directional[5], UR, sel, opp);
+    MOVE_MS(moves.directional[6], DL, sel, opp);
+    MOVE_MS(moves.directional[7], DR, sel, opp);
 
-    uint64_t total = 0;
-    for (int i = 0; i < 8; i++)
-        total |= moves.directional[i].raw();
-    moves.total = total;
+    moves.total =
+        moves.directional[0] |
+        moves.directional[1] |
+        moves.directional[2] |
+        moves.directional[3] |
+        moves.directional[4] |
+        moves.directional[5] |
+        moves.directional[6] |
+        moves.directional[7];
 
     return moves;
 }
 
-bool Board::move(Side side, int i) {
-    uint64_t self, opp;
+Board Board::move(int i) {
+    uint64_t sel = self.raw(), opp = opponent.raw();
     
-    if (side == Side::BLACK) {
-        self = black.raw();
-        opp = white.raw();
-    } else {
-        self = white.raw();
-        opp = black.raw();
-    }
-
     int ro = i / 8 * 8;
 
     uint64_t mask_si = (1ULL << i);
@@ -129,7 +126,7 @@ bool Board::move(Side side, int i) {
         if ((mask_dr & opps) != mask_dr) break;
     }
 
-    uint64_t mask_oi = self | mask_si;
+    uint64_t mask_oi = sel | mask_si;
 
     if ((mask_hl & ((opp & MOVE_L_MASK) | mask_oi)) != mask_hl) mask_hl = 0;
     if ((mask_hr & ((opp & MOVE_R_MASK) | mask_oi)) != mask_hr) mask_hr = 0;
@@ -143,33 +140,5 @@ bool Board::move(Side side, int i) {
     uint64_t mask = mask_hl | mask_hr | mask_vu | mask_vd |
                     mask_ul | mask_ur | mask_dl | mask_dr;
 
-    self |=  mask;
-    opp  &= ~mask;
-
-    if (side == Side::BLACK) {
-        black = self;
-        white = opp;
-    } else {
-        white = self;
-        black = opp;
-    }
-
-    return !!mask;
-}
-
-/*
- * Sets the board state given an 8x8 char array where 'w' indicates a white
- * piece and 'b' indicates a black piece. Mainly for testing purposes.
- */
-void Board::setBoard(char data[]) {
-    black.reset();
-    white.reset();
-
-    for (int i = 0; i < 64; i++) {
-        if (data[i] == 'b') {
-            black.set(i);
-        } if (data[i] == 'w') {
-            white.set(i);
-        }
-    }
+    return Board(sel | mask, opp & ~mask);
 }

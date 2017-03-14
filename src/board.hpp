@@ -10,46 +10,46 @@ struct MoveBoard {
 };
 
 struct Board {
-    static Board standard();
-
-    Bitboard black;
-    Bitboard white;
-
-    Board() : black(), white() { };
-    Board(uint64_t black, uint64_t white)
-        : black(black), white(white) { };
-
-    inline void reset(uint64_t _black, uint64_t _white) {
-        black.reset(_black);
-        white.reset(_white);
+    static Board standard() {
+        return Board(0x0000000810000000ULL,
+                     0x0000001008000000ULL);
     }
 
+
+    Bitboard self;
+    Bitboard opponent;
+
+    Board() : self(), opponent() { };
+    Board(Bitboard self, Bitboard opponent)
+        : self(self), opponent(opponent) { };
+
     inline bool occupied(int i) const {
-        return black.get(i) && white.get(i);
+        return occupied().get(i);
     }
 
     inline Bitboard occupied() const {
-        return Bitboard(black.raw() | white.raw());
+        return self | opponent;
     }
     inline Bitboard unoccupied() const {
-        return Bitboard(~(black.raw() | white.raw()));
+        return ~occupied();
     }
 
-    MoveBoard valid_moves() const;
+    MoveBoard moves() const;
+    Board move(int i);
 
-    bool move(Side s, int i);
-
-    void setBoard(char data[]);
-
-    inline Board inverse() const {
-        return Board(white.raw(), black.raw());
+    inline Board flip() const {
+        return Board(opponent, self);
     }
 };
+
+inline bool operator==(const Board l, const Board r) {
+    return l.self == r.self && l.opponent == r.opponent;
+}
 
 inline std::ostream& operator<<(std::ostream &os, const Board b) {
     for (int i = 0; i < 64; i += 8) {
         for (int j = i; j < i + 8; j++) {
-            os << (b.black.get(j) ? 'b' : (b.white.get(j) ? 'w' : '.'));
+            os << (b.self.get(j) ? 'b' : (b.opponent.get(j) ? 'w' : '.'));
         }
         os << std::endl;
     }

@@ -21,15 +21,17 @@ struct Bitboard {
     inline bool get(uint8_t i) const {
         return (board >> i) & ((uint64_t) 1);
     }
-        inline void set(uint8_t i) {
-                board |= ((uint64_t) 1 << i);
-        }
-        inline void unset(uint8_t i) {
-                board &= ~((uint64_t) 1 << i);
-        }
+
+    inline void set(uint8_t i) {
+        board |= ((uint64_t) 1 << i);
+    }
+    inline void unset(uint8_t i) {
+        board &= ~((uint64_t) 1 << i);
+    }
+
     inline void put(uint8_t i, bool v) {
         board &= ~((uint64_t) 1 << i);
-                board |= ((uint64_t) v << i);
+        board |= ((uint64_t) v << i);
     }
 
     inline int8_t count() const {
@@ -53,6 +55,23 @@ struct Bitboard {
         );
     }
 };
+
+inline Bitboard operator|(const Bitboard r, const Bitboard l) {
+    return Bitboard(r.raw() | l.raw());
+}
+
+inline Bitboard operator&(const Bitboard r, const Bitboard l) {
+    return Bitboard(r.raw() & l.raw());
+}
+
+inline Bitboard operator~(const Bitboard r) {
+    return Bitboard(~r.raw());
+}
+
+inline bool operator==(const Bitboard r, const Bitboard l) {
+    return r.raw() == l.raw();
+}
+
 
 inline std::ostream &operator<<(std::ostream &os, const Bitboard board) {
     for (int i = 0; i < 64; i += 8) {

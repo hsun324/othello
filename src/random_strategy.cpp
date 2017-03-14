@@ -4,7 +4,7 @@
 #include <iostream>
 
 Move random_strategy::move(Board board, int remaining) {
-    MoveBoard moveboard = board.valid_moves();
+    MoveBoard moveboard = board.moves();
 
     Move moves[64];
     int move_count = 0;
