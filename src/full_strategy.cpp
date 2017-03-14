@@ -124,7 +124,7 @@ namespace full {
 }
 
 Move full_strategy::move(Board board, int remaining) {
-    int depth = 14;
+    int depth = 10;
     if (board.occupied().count() > 28) depth = 16;
     if (board.occupied().count() > 32) depth = 22;
     if (board.occupied().count() > 36) depth = 26;
